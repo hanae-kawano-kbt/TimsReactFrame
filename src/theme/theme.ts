@@ -76,5 +76,12 @@ export const theme = createTheme({
         },
       },
     },
+    MuiMenu: {
+      styleOverrides: {
+        root: {
+          maxHeight:280
+        },
+      },
+    }
   },
 })

@@ -27,13 +27,15 @@ export const menus: Menu[] = [
         title: TOP_REPORT_NAME,
         anotherTabFlag: false,
         noMenuFlag: true,
-        embedUrl: `https://app.powerbi.com/reportEmbed?reportId=c9f90f14-696f-41ae-837e-77ba20d2120a&autoAuth=true&ctid=3756f196-d7db-451b-b2a9-9e1a01855fe1&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLXNvdXRoLWVhc3QtYXNpYS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldC8ifQ%3D%3D`,
+        //embedUrl: `https://app.powerbi.com/reportEmbed?reportId=c9f90f14-696f-41ae-837e-77ba20d2120a&autoAuth=true&ctid=3756f196-d7db-451b-b2a9-9e1a01855fe1&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLXNvdXRoLWVhc3QtYXNpYS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldC8ifQ%3D%3D`,
+        embedUrl: `https://app.powerbi.com/reportEmbed?reportId=11f871cc-14a8-4a17-b155-c3fda297f397&autoAuth=true&ctid=cdf09dce-c865-4f42-901d-32d3d8d3f60f&navContentPaneEnabled=false`,
         details: [
           {
             title: 'S',
             anotherTabFlag: false,
             embedUrl:
-              'https://app.powerbi.com/reportEmbed?reportId=d53618c1-35c0-4f47-ad2e-175280c56105&autoAuth=true&ctid=3756f196-d7db-451b-b2a9-9e1a01855fe1&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLXNvdXRoLWVhc3QtYXNpYS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldC8ifQ%3D%3D',
+              'https://app.powerbi.com/reportEmbed?reportId=d6d82d7f-592b-43af-ab56-c0dd60bb8350&autoAuth=true&ctid=cdf09dce-c865-4f42-901d-32d3d8d3f60f&navContentPaneEnabled=false'
+              // 'https://app.powerbi.com/reportEmbed?reportId=d53618c1-35c0-4f47-ad2e-175280c56105&autoAuth=true&ctid=3756f196-d7db-451b-b2a9-9e1a01855fe1&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLXNvdXRoLWVhc3QtYXNpYS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldC8ifQ%3D%3D',
           },
           {
             title: 'Q',

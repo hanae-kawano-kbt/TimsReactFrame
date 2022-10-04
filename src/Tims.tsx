@@ -1,7 +1,9 @@
-import { Box, Paper, SvgIcon } from '@mui/material'
+// #region imports
+import { Box, Paper, selectClasses, SvgIcon } from '@mui/material'
 import { FC, useEffect, useState, useRef, useMemo } from 'react'
 import { MenuBar } from './components/Menu'
 import { Header } from './components/Header'
+import { Select, SelectElementType } from './components/Select'
 import { Theme, Collapse } from '@mui/material'
 import { Menu as MuiMenu, MenuItem } from '@mui/material'
 import { UserAgentApplication, AuthError, AuthResponse } from 'msal'
@@ -17,7 +19,9 @@ import {
   TOP_REPORT_NAME,
 } from './menuConfig'
 import { ReactComponent as arrowLeftIcon } from './assets/icons/arrow_left.svg'
+// #endregion imports
 
+// #region Styles
 const styles = {
   root: {
     width: '100%'
@@ -43,10 +47,22 @@ const styles = {
     position: 'relative',
     height: '70px'
   },
+  slicerList: {
+    position: 'absolute',
+    right: '0px',
+    alignItems: 'center',
+    height: '70px'
+  },
   topBtn: {
     padding: '13px 0'
   },
   btnMenu: {
+    display: 'flex',
+    position: 'absolute',
+    left: '60px',
+    padding: '13px 0'
+  },
+  pulldownMenu: {
     display: 'flex',
     position: 'absolute',
     left: '60px',
@@ -138,7 +154,9 @@ const styles = {
     },
   },
 }
+// #endregion Styles
 
+// #region Exports
 export type CurrentMenu = {
   mainTitle: string
   subMenuTitle: string | undefined
@@ -150,10 +168,13 @@ export type CurrentMenu = {
   underMenuEmbedUrl: string | undefined
   noMenuFlag: boolean | undefined
 }
+// #endregion Exports
 
 export const Tims: FC = () => {
   // 現在表示しているPowerBIの情報
   // 初期で工場全体の情報を設定する
+
+  // #region Consts
   const [currentMenu, setCurrentMenu] = useState<CurrentMenu>({
     // 初期でmainTitleが「工場全体」
     mainTitle: menus[0].title,
@@ -188,10 +209,10 @@ export const Tims: FC = () => {
   // アイエンター社内に開発する時、PowerBIのサイトからトークンを取って開発する（1時間ごとに再取得必要）
   // クボタ様を渡す時に、「undefined」で設定
   const accessToken = useRef<string | undefined>(
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvMzc1NmYxOTYtZDdkYi00NTFiLWIyYTktOWUxYTAxODU1ZmUxLyIsImlhdCI6MTY2MDYzMjc1OCwibmJmIjoxNjYwNjMyNzU4LCJleHAiOjE2NjA2MzY4NjAsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVlFBcS84VEFBQUFHV2JEOWdITWFDaGcrMlF4aDJ3N3pEUFd0dVZkWW1RYWd0M29TdVUxNDNkUm1sd1JFbS9mSCtzVFgvYUQrRTBxTnBIQVhNNWRHcW85MkVKYzZMUmJHV3BrWGRQRXJJRnFGR0g4QUIzeVdmQT0iLCJhbXIiOlsicHdkIiwibWZhIl0sImFwcGlkIjoiODcxYzAxMGYtNWU2MS00ZmIxLTgzYWMtOTg2MTBhN2U5MTEwIiwiYXBwaWRhY3IiOiIyIiwiZmFtaWx5X25hbWUiOiLlt6Xol6QiLCJnaXZlbl9uYW1lIjoi57a-6I-vIiwiaXBhZGRyIjoiMTE0LjE2Mi4xMzUuMTMzIiwibmFtZSI6IuW3peiXpCDntr7oj68iLCJvaWQiOiJkZDUxMjhjNi0wYjdjLTRiNTUtYTQ3NS1lNzE2NjUzNmVhZmIiLCJvbnByZW1fc2lkIjoiUy0xLTUtMjEtMzA0MzQ1OTY1Ny0zNDY4NDYyNDU4LTIwMjUyMDM2ODUtMTc2OTMiLCJwdWlkIjoiMTAwMzdGRkVBOUExQkRBMSIsInJoIjoiMC5BVDBBbHZGV045dlhHMFd5cVo0YUFZVmY0UWtBQUFBQUFBQUF3QUFBQUFBQUFBQTlBTncuIiwic2NwIjoidXNlcl9pbXBlcnNvbmF0aW9uIiwic2lnbmluX3N0YXRlIjpbImttc2kiXSwic3ViIjoiQWo0SWdqekRkUFRwWHJ2VGJMZ3JIRWk1STI5aHVJNTEyNEVCZlZyc2NNdyIsInRpZCI6IjM3NTZmMTk2LWQ3ZGItNDUxYi1iMmE5LTllMWEwMTg1NWZlMSIsInVuaXF1ZV9uYW1lIjoiYS1rdWRvQGktZW50ZXIuY28uanAiLCJ1cG4iOiJhLWt1ZG9AaS1lbnRlci5jby5qcCIsInV0aSI6InJvRUF1RE5aTWtHbDQwWTF4c1p4QUEiLCJ2ZXIiOiIxLjAiLCJ3aWRzIjpbImI3OWZiZjRkLTNlZjktNDY4OS04MTQzLTc2YjE5NGU4NTUwOSJdfQ.Cim7X08xSKIy2DIJyZzwlkA1go9E-9pdtvouinGOdqUDdk2t-_Q-gXK7uLywC202KLKI8cvyZzbcx2TLtAwHE-cj9X-KxQ4PhIImXcAfgGRmbYbj1CS_kt3G_lwQVSFXkNcZhyqzlejG3WNwEnr4lKOYlt4k4hwV-OL5J9m0sN4qzOMW5JSvpxz8kQ0MfY4VSRN24KxMgg_l-4oxPZeG00Mg_piF_j7PGUEPGyqCubx1jmQ0CayKz4JDEft1Av-DUUbGfkhMx5oJCbLt9d_TSmR4YvhuLiIref2jFn3rmMW2fsV58LaWHV16HS_pqBYYwUsBTDEAD5NGjyzlDSD00g'
+    //   'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvMzc1NmYxOTYtZDdkYi00NTFiLWIyYTktOWUxYTAxODU1ZmUxLyIsImlhdCI6MTY2MDYzMjc1OCwibmJmIjoxNjYwNjMyNzU4LCJleHAiOjE2NjA2MzY4NjAsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVlFBcS84VEFBQUFHV2JEOWdITWFDaGcrMlF4aDJ3N3pEUFd0dVZkWW1RYWd0M29TdVUxNDNkUm1sd1JFbS9mSCtzVFgvYUQrRTBxTnBIQVhNNWRHcW85MkVKYzZMUmJHV3BrWGRQRXJJRnFGR0g4QUIzeVdmQT0iLCJhbXIiOlsicHdkIiwibWZhIl0sImFwcGlkIjoiODcxYzAxMGYtNWU2MS00ZmIxLTgzYWMtOTg2MTBhN2U5MTEwIiwiYXBwaWRhY3IiOiIyIiwiZmFtaWx5X25hbWUiOiLlt6Xol6QiLCJnaXZlbl9uYW1lIjoi57a-6I-vIiwiaXBhZGRyIjoiMTE0LjE2Mi4xMzUuMTMzIiwibmFtZSI6IuW3peiXpCDntr7oj68iLCJvaWQiOiJkZDUxMjhjNi0wYjdjLTRiNTUtYTQ3NS1lNzE2NjUzNmVhZmIiLCJvbnByZW1fc2lkIjoiUy0xLTUtMjEtMzA0MzQ1OTY1Ny0zNDY4NDYyNDU4LTIwMjUyMDM2ODUtMTc2OTMiLCJwdWlkIjoiMTAwMzdGRkVBOUExQkRBMSIsInJoIjoiMC5BVDBBbHZGV045dlhHMFd5cVo0YUFZVmY0UWtBQUFBQUFBQUF3QUFBQUFBQUFBQTlBTncuIiwic2NwIjoidXNlcl9pbXBlcnNvbmF0aW9uIiwic2lnbmluX3N0YXRlIjpbImttc2kiXSwic3ViIjoiQWo0SWdqekRkUFRwWHJ2VGJMZ3JIRWk1STI5aHVJNTEyNEVCZlZyc2NNdyIsInRpZCI6IjM3NTZmMTk2LWQ3ZGItNDUxYi1iMmE5LTllMWEwMTg1NWZlMSIsInVuaXF1ZV9uYW1lIjoiYS1rdWRvQGktZW50ZXIuY28uanAiLCJ1cG4iOiJhLWt1ZG9AaS1lbnRlci5jby5qcCIsInV0aSI6InJvRUF1RE5aTWtHbDQwWTF4c1p4QUEiLCJ2ZXIiOiIxLjAiLCJ3aWRzIjpbImI3OWZiZjRkLTNlZjktNDY4OS04MTQzLTc2YjE5NGU4NTUwOSJdfQ.Cim7X08xSKIy2DIJyZzwlkA1go9E-9pdtvouinGOdqUDdk2t-_Q-gXK7uLywC202KLKI8cvyZzbcx2TLtAwHE-cj9X-KxQ4PhIImXcAfgGRmbYbj1CS_kt3G_lwQVSFXkNcZhyqzlejG3WNwEnr4lKOYlt4k4hwV-OL5J9m0sN4qzOMW5JSvpxz8kQ0MfY4VSRN24KxMgg_l-4oxPZeG00Mg_piF_j7PGUEPGyqCubx1jmQ0CayKz4JDEft1Av-DUUbGfkhMx5oJCbLt9d_TSmR4YvhuLiIref2jFn3rmMW2fsV58LaWHV16HS_pqBYYwUsBTDEAD5NGjyzlDSD00g'
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvY2RmMDlkY2UtYzg2NS00ZjQyLTkwMWQtMzJkM2Q4ZDNmNjBmLyIsImlhdCI6MTY2NDQwNzI2OSwibmJmIjoxNjY0NDA3MjY5LCJleHAiOjE2NjQ0MTEyMTMsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVFFBeS84VEFBQUF5YmhiejZOdU1BdEZWMmxrcmlaZHJmVEo4ZjNWTUZuUXpJRGhVVjFvNjRKMzNJL3FLZ0toNWR4bGR0Z0Zhc3J4IiwiYW1yIjpbInB3ZCJdLCJhcHBpZCI6Ijg3MWMwMTBmLTVlNjEtNGZiMS04M2FjLTk4NjEwYTdlOTExMCIsImFwcGlkYWNyIjoiMiIsImZhbWlseV9uYW1lIjoib2UiLCJnaXZlbl9uYW1lIjoicnlvIiwiaXBhZGRyIjoiNTguMTkxLjYuMiIsIm5hbWUiOiLlpKfmsZ8g5LukIiwib2lkIjoiOGEzZjlkMzgtNDFiNy00NzkwLWE4YzQtNzM4ZjYzNWY4YmM3IiwicHVpZCI6IjEwMDMyMDAxNTYzRDBDNDgiLCJyaCI6IjAuQVNzQXpwM3d6V1hJUWstUUhUTFQyTlAyRHdrQUFBQUFBQUFBd0FBQUFBQUFBQUFyQVBNLiIsInNjcCI6InVzZXJfaW1wZXJzb25hdGlvbiIsInNpZ25pbl9zdGF0ZSI6WyJpbmtub3dubnR3ayJdLCJzdWIiOiIxV1BnMVlqWDlablYydk1fY180Wm1JQ20xRFY0LVJ6aWhpQ2FkZGpUZEtvIiwidGlkIjoiY2RmMDlkY2UtYzg2NS00ZjQyLTkwMWQtMzJkM2Q4ZDNmNjBmIiwidW5pcXVlX25hbWUiOiJyeW8ub2VAa2lhbS5pbnRyYS5rYnQtZ2xvYmFsLmNvbSIsInVwbiI6InJ5by5vZUBraWFtLmludHJhLmtidC1nbG9iYWwuY29tIiwidXRpIjoiLUtGRzhkUlVla3lLeGRuODBVd3JBQSIsInZlciI6IjEuMCIsIndpZHMiOlsiYjc5ZmJmNGQtM2VmOS00Njg5LTgxNDMtNzZiMTk0ZTg1NTA5Il19.gbbQSNLLT39-7Z4BUCf_bsg2iyNRN91eNWxUaX89KF5gBIBWQaDslyAYOMKVQm5EhLAq237zhya0moVyMGvBjDb4mFRtiYOimjGlRukpixrklKL7nm0RZenXuALZUo0y7dvDMosDQ-DbEnO4RzI22UXmXlnR6wnp_L6905UoAMmQpGgGl5NQuKulTUkInSzeP_P-M9GxOFokQZuediIqSJJiPxg7Ca-MLqXxwmogz14XzaTnE6numwpPE2g9G8C5103oPlQUTTHJwgTs34QVTbYUii_fnDYhmiPTwaiH-_D-GCZbz6h1QjXqrv51f-uHJw5m5jYVGI4w0fzBhIayOg'
   )
-  // フィルターを開発する
-  const slicerState = useRef<any>([])
+
   // 最下層メニューの開閉
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
@@ -227,8 +248,8 @@ export const Tims: FC = () => {
       // トークンのタイプ
       //　アイエンター内に実装する時に、「Aad」にする
       // クボタ様を渡す時に、「Embed」で設定
+      // tokenType: models.TokenType.Aad,
       tokenType: models.TokenType.Aad,
-      // tokenType: models.TokenType.Embed,
       settings: {
         panes: {
           filters: {
@@ -244,6 +265,15 @@ export const Tims: FC = () => {
       },
     })
 
+  // フィルターを開発する
+  const slicerState = useRef<any>([])
+
+
+
+
+  // #endregion Consts
+
+  // #region EventHandlers
   const eventHandlersMap = new Map([
     // PowerBIが取得される時
     [
@@ -389,6 +419,7 @@ export const Tims: FC = () => {
       },
     ],
   ])
+  // #endregion EventHandlers
 
   // トークンを取得するため認証を行う関数(検証できないので、サンプルのまま実装)
   const authenticate = () => {
@@ -666,6 +697,7 @@ export const Tims: FC = () => {
     }
   }
 
+  // #region Box
   return (
     <Box sx={styles.root} display="flex">
       <Collapse in={isOpenMenu} orientation="horizontal" sx={styles.collapseRoot}>
@@ -685,7 +717,9 @@ export const Tims: FC = () => {
           currentMenu={currentMenu}
           setCurrentMenu={setCurrentMenu}
         />
+        {/*#region メニューボタンの段*/}
         <Box display="flex" sx={styles.btnList}>
+          {/*メインページ以外はメインに戻れるボタンを表示*/}
           <Box style={styles.topBtn}>
             {!isMainPage && (
               <Box
@@ -706,6 +740,7 @@ export const Tims: FC = () => {
               </Box>
             )}
           </Box>
+          {/*SQCDEのメニューらしい*/}
           <Box py={4} sx={styles.btnMenu}>
             <Box
               display="flex"
@@ -762,20 +797,21 @@ export const Tims: FC = () => {
                     </Box>
                   )
                 })}
-                <MuiMenu
-                  anchorEl={anchorEl}
-                  id="sub-menu"
-                  open={open}
-                  onClose={handleClose}
-                  onClick={handleClose}
-                  sx={styles.subMenu}
-                  PaperProps={{
-                    elevation: 0,
-                    sx: styles.subMenuPaper,
-                  }}
-                  transformOrigin={{ horizontal: 'left', vertical: 'top' }}
-                  anchorOrigin={{ horizontal: 0, vertical: 70 }}
-                >
+              {/*R工程などのサブメニュー*/}
+              <MuiMenu
+                anchorEl={anchorEl}
+                id="sub-menu"
+                open={open}
+                onClose={handleClose}
+                onClick={handleClose}
+                sx={styles.subMenu}
+                PaperProps={{
+                  elevation: 0,
+                  sx: styles.subMenuPaper,
+                }}
+                transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 0, vertical: 70 }}
+              >
                 {menus
                   .find((menu) => menu.title === currentMenu.mainTitle)
                   ?.subMenu.find(
@@ -793,7 +829,14 @@ export const Tims: FC = () => {
               </MuiMenu>
             </Box>
           </Box>
+          <Box display="flex" sx={styles.slicerList}>
+            {/*これが、スライサーになればいいな*/}
+            <Select selectElementType={SelectElementType.years } />
+            <Select selectElementType={SelectElementType.weeks } />
+          </Box>
         </Box>
+        {/*#endregion メニューボタンの段*/}
+        {/*PowerBIContainer*/}
         <Box component={Paper} p={2} sx={styles.powerbiContainer}>
           <PowerBIEmbed
             embedConfig={reportConfig}
@@ -810,6 +853,7 @@ export const Tims: FC = () => {
         </Box>
       </Box>
     </Box>
-    
+    // #region Box
+
   )
 }
