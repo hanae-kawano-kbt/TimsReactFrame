@@ -1,9 +1,7 @@
-// #region imports
-import { Box, Paper, selectClasses, SvgIcon } from '@mui/material'
+import { Box, Paper, SvgIcon } from '@mui/material'
 import { FC, useEffect, useState, useRef, useMemo } from 'react'
 import { MenuBar } from './components/Menu'
 import { Header } from './components/Header'
-import { Select, SelectElementType } from './components/Select'
 import { Theme, Collapse } from '@mui/material'
 import { Menu as MuiMenu, MenuItem } from '@mui/material'
 import { UserAgentApplication, AuthError, AuthResponse } from 'msal'
@@ -18,10 +16,14 @@ import {
   OVERALL_REPORT_NAME,
   TOP_REPORT_NAME,
 } from './menuConfig'
-import { ReactComponent as arrowLeftIcon } from './assets/icons/arrow_left.svg'
-// #endregion imports
 
-// #region Styles
+// DatePickerインストール
+import { YearPickerCalendar } from './components/YearPickerCalendar'
+import { MonthPickerCalendar } from './components/MonthPickerCalendar'
+import { WeekPickerCalendar } from './components/WeekPickerCalendar'
+import { DayPickerCalendar } from './components/DayPickerCalendar'
+
+
 const styles = {
   root: {
     width: '100%'
@@ -47,22 +49,10 @@ const styles = {
     position: 'relative',
     height: '70px'
   },
-  slicerList: {
-    position: 'absolute',
-    right: '0px',
-    alignItems: 'center',
-    height: '70px'
-  },
   topBtn: {
     padding: '13px 0'
   },
   btnMenu: {
-    display: 'flex',
-    position: 'absolute',
-    left: '60px',
-    padding: '13px 0'
-  },
-  pulldownMenu: {
     display: 'flex',
     position: 'absolute',
     left: '60px',
@@ -152,29 +142,26 @@ const styles = {
       transform: 'translate(-50%, -50%) rotate(45deg)',
       zIndex: 0,
     },
-  },
+  }
 }
-// #endregion Styles
 
-// #region Exports
 export type CurrentMenu = {
   mainTitle: string
   subMenuTitle: string | undefined
   subMenuEmbedUrl: string | undefined
+  subMenuDateSlicerType?: string | undefined //subMenu日付スライサー種別
   detailTitle: string | undefined
   detailEmbedUrl: string | undefined
+  detailsDateSlicerType?: string | undefined //details日付スライサー種別
   underMenu: Under[] | undefined
   underMenuTitle: string | undefined
   underMenuEmbedUrl: string | undefined
   noMenuFlag: boolean | undefined
 }
-// #endregion Exports
 
 export const Tims: FC = () => {
   // 現在表示しているPowerBIの情報
   // 初期で工場全体の情報を設定する
-
-  // #region Consts
   const [currentMenu, setCurrentMenu] = useState<CurrentMenu>({
     // 初期でmainTitleが「工場全体」
     mainTitle: menus[0].title,
@@ -183,6 +170,7 @@ export const Tims: FC = () => {
     // ※「工場全体」のメニュー以外はメニューをクリックするとサブメニューが現れる
     subMenuTitle: menus[0].subMenu[0].title,
     subMenuEmbedUrl: menus[0].subMenu[0].embedUrl,
+    subMenuDateSlicerType: menus[0].subMenu[0].dateSlicerType, //subMenu日付スライサー種別
     // 「S」「Q」「Mc」などのヘッダーのメニュー
     //　初期でなのも設定しない
     detailTitle: undefined,
@@ -190,6 +178,7 @@ export const Tims: FC = () => {
     underMenu: undefined,
     underMenuTitle: undefined,
     underMenuEmbedUrl: undefined,
+    detailsDateSlicerType: undefined, //details日付スライサー種別
     // 課の下層メニューがあるかないか
     noMenuFlag: menus[0].noMenuFlag ? menus[0].noMenuFlag : false
   })
@@ -209,10 +198,10 @@ export const Tims: FC = () => {
   // アイエンター社内に開発する時、PowerBIのサイトからトークンを取って開発する（1時間ごとに再取得必要）
   // クボタ様を渡す時に、「undefined」で設定
   const accessToken = useRef<string | undefined>(
-    //   'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvMzc1NmYxOTYtZDdkYi00NTFiLWIyYTktOWUxYTAxODU1ZmUxLyIsImlhdCI6MTY2MDYzMjc1OCwibmJmIjoxNjYwNjMyNzU4LCJleHAiOjE2NjA2MzY4NjAsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVlFBcS84VEFBQUFHV2JEOWdITWFDaGcrMlF4aDJ3N3pEUFd0dVZkWW1RYWd0M29TdVUxNDNkUm1sd1JFbS9mSCtzVFgvYUQrRTBxTnBIQVhNNWRHcW85MkVKYzZMUmJHV3BrWGRQRXJJRnFGR0g4QUIzeVdmQT0iLCJhbXIiOlsicHdkIiwibWZhIl0sImFwcGlkIjoiODcxYzAxMGYtNWU2MS00ZmIxLTgzYWMtOTg2MTBhN2U5MTEwIiwiYXBwaWRhY3IiOiIyIiwiZmFtaWx5X25hbWUiOiLlt6Xol6QiLCJnaXZlbl9uYW1lIjoi57a-6I-vIiwiaXBhZGRyIjoiMTE0LjE2Mi4xMzUuMTMzIiwibmFtZSI6IuW3peiXpCDntr7oj68iLCJvaWQiOiJkZDUxMjhjNi0wYjdjLTRiNTUtYTQ3NS1lNzE2NjUzNmVhZmIiLCJvbnByZW1fc2lkIjoiUy0xLTUtMjEtMzA0MzQ1OTY1Ny0zNDY4NDYyNDU4LTIwMjUyMDM2ODUtMTc2OTMiLCJwdWlkIjoiMTAwMzdGRkVBOUExQkRBMSIsInJoIjoiMC5BVDBBbHZGV045dlhHMFd5cVo0YUFZVmY0UWtBQUFBQUFBQUF3QUFBQUFBQUFBQTlBTncuIiwic2NwIjoidXNlcl9pbXBlcnNvbmF0aW9uIiwic2lnbmluX3N0YXRlIjpbImttc2kiXSwic3ViIjoiQWo0SWdqekRkUFRwWHJ2VGJMZ3JIRWk1STI5aHVJNTEyNEVCZlZyc2NNdyIsInRpZCI6IjM3NTZmMTk2LWQ3ZGItNDUxYi1iMmE5LTllMWEwMTg1NWZlMSIsInVuaXF1ZV9uYW1lIjoiYS1rdWRvQGktZW50ZXIuY28uanAiLCJ1cG4iOiJhLWt1ZG9AaS1lbnRlci5jby5qcCIsInV0aSI6InJvRUF1RE5aTWtHbDQwWTF4c1p4QUEiLCJ2ZXIiOiIxLjAiLCJ3aWRzIjpbImI3OWZiZjRkLTNlZjktNDY4OS04MTQzLTc2YjE5NGU4NTUwOSJdfQ.Cim7X08xSKIy2DIJyZzwlkA1go9E-9pdtvouinGOdqUDdk2t-_Q-gXK7uLywC202KLKI8cvyZzbcx2TLtAwHE-cj9X-KxQ4PhIImXcAfgGRmbYbj1CS_kt3G_lwQVSFXkNcZhyqzlejG3WNwEnr4lKOYlt4k4hwV-OL5J9m0sN4qzOMW5JSvpxz8kQ0MfY4VSRN24KxMgg_l-4oxPZeG00Mg_piF_j7PGUEPGyqCubx1jmQ0CayKz4JDEft1Av-DUUbGfkhMx5oJCbLt9d_TSmR4YvhuLiIref2jFn3rmMW2fsV58LaWHV16HS_pqBYYwUsBTDEAD5NGjyzlDSD00g'
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvY2RmMDlkY2UtYzg2NS00ZjQyLTkwMWQtMzJkM2Q4ZDNmNjBmLyIsImlhdCI6MTY2NDQwNzI2OSwibmJmIjoxNjY0NDA3MjY5LCJleHAiOjE2NjQ0MTEyMTMsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVFFBeS84VEFBQUF5YmhiejZOdU1BdEZWMmxrcmlaZHJmVEo4ZjNWTUZuUXpJRGhVVjFvNjRKMzNJL3FLZ0toNWR4bGR0Z0Zhc3J4IiwiYW1yIjpbInB3ZCJdLCJhcHBpZCI6Ijg3MWMwMTBmLTVlNjEtNGZiMS04M2FjLTk4NjEwYTdlOTExMCIsImFwcGlkYWNyIjoiMiIsImZhbWlseV9uYW1lIjoib2UiLCJnaXZlbl9uYW1lIjoicnlvIiwiaXBhZGRyIjoiNTguMTkxLjYuMiIsIm5hbWUiOiLlpKfmsZ8g5LukIiwib2lkIjoiOGEzZjlkMzgtNDFiNy00NzkwLWE4YzQtNzM4ZjYzNWY4YmM3IiwicHVpZCI6IjEwMDMyMDAxNTYzRDBDNDgiLCJyaCI6IjAuQVNzQXpwM3d6V1hJUWstUUhUTFQyTlAyRHdrQUFBQUFBQUFBd0FBQUFBQUFBQUFyQVBNLiIsInNjcCI6InVzZXJfaW1wZXJzb25hdGlvbiIsInNpZ25pbl9zdGF0ZSI6WyJpbmtub3dubnR3ayJdLCJzdWIiOiIxV1BnMVlqWDlablYydk1fY180Wm1JQ20xRFY0LVJ6aWhpQ2FkZGpUZEtvIiwidGlkIjoiY2RmMDlkY2UtYzg2NS00ZjQyLTkwMWQtMzJkM2Q4ZDNmNjBmIiwidW5pcXVlX25hbWUiOiJyeW8ub2VAa2lhbS5pbnRyYS5rYnQtZ2xvYmFsLmNvbSIsInVwbiI6InJ5by5vZUBraWFtLmludHJhLmtidC1nbG9iYWwuY29tIiwidXRpIjoiLUtGRzhkUlVla3lLeGRuODBVd3JBQSIsInZlciI6IjEuMCIsIndpZHMiOlsiYjc5ZmJmNGQtM2VmOS00Njg5LTgxNDMtNzZiMTk0ZTg1NTA5Il19.gbbQSNLLT39-7Z4BUCf_bsg2iyNRN91eNWxUaX89KF5gBIBWQaDslyAYOMKVQm5EhLAq237zhya0moVyMGvBjDb4mFRtiYOimjGlRukpixrklKL7nm0RZenXuALZUo0y7dvDMosDQ-DbEnO4RzI22UXmXlnR6wnp_L6905UoAMmQpGgGl5NQuKulTUkInSzeP_P-M9GxOFokQZuediIqSJJiPxg7Ca-MLqXxwmogz14XzaTnE6numwpPE2g9G8C5103oPlQUTTHJwgTs34QVTbYUii_fnDYhmiPTwaiH-_D-GCZbz6h1QjXqrv51f-uHJw5m5jYVGI4w0fzBhIayOg'
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvMzc1NmYxOTYtZDdkYi00NTFiLWIyYTktOWUxYTAxODU1ZmUxLyIsImlhdCI6MTY2ODA2ODc3MSwibmJmIjoxNjY4MDY4NzcxLCJleHAiOjE2NjgwNzQwMjMsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVlFBcS84VEFBQUFsUDdrYWo4ZGUvOWRUMW90N2g2RjgvRVlsWWhSZDJBUjRqTlc1V0ozM1ZPdncxWmVsN0FXRVZnaUJrREovenJ4c3BUNUduOXdrZDhjMk5yai9LbVZHSUVuZ2EwUnA0OWhRSS82cVQvVis2bz0iLCJhbXIiOlsicHdkIiwibWZhIl0sImFwcGlkIjoiODcxYzAxMGYtNWU2MS00ZmIxLTgzYWMtOTg2MTBhN2U5MTEwIiwiYXBwaWRhY3IiOiIyIiwiZmFtaWx5X25hbWUiOiLmsrPph44iLCJnaXZlbl9uYW1lIjoi6Iux5oG1IiwiaXBhZGRyIjoiMjE3LjE3OC4xOS42IiwibmFtZSI6Iuays-mHjiDoi7HmgbUiLCJvaWQiOiIxOTEzNTRjMy1lZTBjLTRiZjQtYTAzNy1hZjZjMmFhNDlhMWYiLCJvbnByZW1fc2lkIjoiUy0xLTUtMjEtMzA0MzQ1OTY1Ny0zNDY4NDYyNDU4LTIwMjUyMDM2ODUtMTkzMjUiLCJwdWlkIjoiMTAwMzIwMDExREMzNUUwMyIsInJoIjoiMC5BVDBBbHZGV045dlhHMFd5cVo0YUFZVmY0UWtBQUFBQUFBQUF3QUFBQUFBQUFBQTlBSVEuIiwic2NwIjoidXNlcl9pbXBlcnNvbmF0aW9uIiwic2lnbmluX3N0YXRlIjpbImttc2kiXSwic3ViIjoiSmNub3VJYkZwT3dGZXJEUC1DcWtXRUdrXzh2bWJwNUloY19IZ1BkQjdzTSIsInRpZCI6IjM3NTZmMTk2LWQ3ZGItNDUxYi1iMmE5LTllMWEwMTg1NWZlMSIsInVuaXF1ZV9uYW1lIjoiaC1rYXdhbm9AaS1lbnRlci5jby5qcCIsInVwbiI6Imgta2F3YW5vQGktZW50ZXIuY28uanAiLCJ1dGkiOiJSMVhGNS1vWVgwU3RKcjlZVm9LZ0FBIiwidmVyIjoiMS4wIiwid2lkcyI6WyJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXX0.Vx4YUYBBZle6Xi5qSJjTCBCszAd_KmN9U6FwgVndhg_q_JPUBR7RmTu-4px13OLdEB76pKE9eP1NiBEzYSSW_2ycCedHntfMMp344SR8tPJPRndmIgW8tt1PYCfv3cLiMN3v7u9qh5-Nad4eQMXrYaM44nMxBCNsZ1uc3r27Wa3wqhffCQCG_DwWPHHwEC6VqA9T7VHO9m27p0cGngZdIHH7GHE2_Syu95gfsJmjpIKprCwDposuhMdwmljDNJXcaBhG1cII5RVtcSag_ZgnPjL81ORqlH8M39THK8B3fNkfRVWKFKJBuF-YBjRKyu_11O3YesNQxJIMLtoLeyAoHQ'
   )
-
+  // フィルターを開発する
+  const slicerState = useRef<any>([])
   // 最下層メニューの開閉
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
@@ -248,8 +237,8 @@ export const Tims: FC = () => {
       // トークンのタイプ
       //　アイエンター内に実装する時に、「Aad」にする
       // クボタ様を渡す時に、「Embed」で設定
-      // tokenType: models.TokenType.Aad,
       tokenType: models.TokenType.Aad,
+      // tokenType: models.TokenType.Embed,
       settings: {
         panes: {
           filters: {
@@ -262,18 +251,9 @@ export const Tims: FC = () => {
             visible: false,
           },
         },
-      },
+      }
     })
 
-  // フィルターを開発する
-  const slicerState = useRef<any>([])
-
-
-
-
-  // #endregion Consts
-
-  // #region EventHandlers
   const eventHandlersMap = new Map([
     // PowerBIが取得される時
     [
@@ -296,6 +276,7 @@ export const Tims: FC = () => {
             setCurrentBookmark(filteredBookmarks[0])
 
           // 選択したフィルターを反映
+          console.log('選択されているフィルターが0かどうか確認: ' + slicerState.current.length)
           if (slicerState.current.length === 0) return
           const pages = await reportRef.current!.getPages()
           const activePage = pages?.filter(function (page) {
@@ -321,8 +302,9 @@ export const Tims: FC = () => {
             )
             // 設定したフィルターを設定する
             if (savedState !== undefined) {
+              console.log('load時値直接セット')
               await slicer.setSlicerState({
-                filters: [...savedState.filters],
+                filters: [...savedState.filters]
               })
             }
           })
@@ -352,6 +334,9 @@ export const Tims: FC = () => {
       'dataSelected',
       async (event: any) => {
         // Slicerのstateを保管する(slicerの中にフィルターがある)
+        console.log('dataSelected')
+
+        //確認用↓↓↓
         try {
           const pages = await reportRef.current!.getPages()
           const activePage = pages?.filter(function (page) {
@@ -369,6 +354,33 @@ export const Tims: FC = () => {
           // 取得したslicerのステートを保管する
           slicers.forEach(async (slicer) => {
             const state = await slicer.getSlicerState()
+            console.log('dataSelected時値直接セット')
+            // const state: models.ISlicerState = {
+            //   filters: [
+            //     {
+            //       //年
+            //       $schema: "http://powerbi.com/product/schema#basic",
+            //       filterType: 1,
+            //       operator: "In",
+            //       requireSingleSelection: true,
+            //       // target: {column: 'year', table: 'date'},
+            //       target: { column: "年", table: "date" },
+            //       values: ["2021"]
+            //     },
+            //     // {
+            //     //   //月
+            //     //   $schema: 'http://powerbi.com/product/schema#basic',
+            //     //   filterType: 1,
+            //     //   operator: 'In',
+            //     //   requireSingleSelection: true,
+            //     //   target: { column: 'month', table: 'date' },
+            //     //   values: ['10']
+            //     // },
+            //   ],
+            //   targets: [
+            //     { column: "year", table: "date" },
+            //   ]
+            // }
             slicerState.current = [...slicerState.current, state]
           })
         } catch (errors) {
@@ -409,8 +421,10 @@ export const Tims: FC = () => {
           mainTitle: menu.title,
           subMenuTitle: subMenu.title,
           subMenuEmbedUrl: subMenu.embedUrl,
+          subMenuDateSlicerType: subMenu.dateSlicerType, //subMenu日付スライサー種別
           detailTitle: detail ? detail.title : undefined,
           detailEmbedUrl: detail ? detail.embedUrl : undefined,
+          detailsDateSlicerType: detail ? detail.dateSlicerType : undefined, //details日付スライサー種別
           underMenu: undefined,
           underMenuTitle: undefined,
           underMenuEmbedUrl: undefined,
@@ -419,7 +433,6 @@ export const Tims: FC = () => {
       },
     ],
   ])
-  // #endregion EventHandlers
 
   // トークンを取得するため認証を行う関数(検証できないので、サンプルのまま実装)
   const authenticate = () => {
@@ -548,6 +561,18 @@ export const Tims: FC = () => {
       ...reportConfig,
       accessToken: accessToken.current,
       embedUrl: embedUrl,
+      //ここにfilters
+      filters: [
+        {
+          //年
+          $schema: "http://powerbi.com/product/schema#basic",
+          filterType: models.FilterType.Basic,
+          operator: "In",
+          requireSingleSelection: true,
+          target: { column: "yyyy/mm", table: "日付マスタ" },
+          values: ["2021/5"]
+        },
+      ]
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMenu])
@@ -569,7 +594,9 @@ export const Tims: FC = () => {
       setCurrentMenu({
         ...currentMenu,
         detailTitle: detail.title,
-        underMenu: detail.underMenu
+        underMenu: detail.underMenu,
+        //subMenuDateSlicerType: undefined, //subMenu日付スライサー種別追加 【要調査】
+        //detailsDateSlicerType: undefined //details日付スライサー種別追加 【要調査】
       })
     } else if (detail.anotherTabFlag) {
       window.open(detail.embedUrl, '_blank');
@@ -580,7 +607,8 @@ export const Tims: FC = () => {
         detailEmbedUrl: detail.embedUrl,
         underMenu: undefined,
         underMenuTitle: undefined,
-        underMenuEmbedUrl: undefined
+        underMenuEmbedUrl: undefined,
+        detailsDateSlicerType: detail.dateSlicerType //details日付スライサー種別追加
       })
     }
   }
@@ -591,6 +619,8 @@ export const Tims: FC = () => {
       ...currentMenu,
       underMenuTitle: under.title,
       underMenuEmbedUrl: under.embedUrl,
+      //subMenuDateSlicerType: undefined, //subMenu日付スライサー種別追加 【要調査】
+      //detailsDateSlicerType: undefined //details日付スライサー種別追加 【要調査】
     })
   }
 
@@ -606,6 +636,7 @@ export const Tims: FC = () => {
         ...currentMenu,
         detailTitle: undefined,
         detailEmbedUrl: undefined,
+        detailsDateSlicerType: undefined, //detail日付スライサー種別削除
         underMenu: undefined,
         underMenuTitle: undefined,
         underMenuEmbedUrl: undefined
@@ -623,6 +654,7 @@ export const Tims: FC = () => {
         ...currentMenu,
         detailTitle: undefined,
         detailEmbedUrl: undefined,
+        detailsDateSlicerType: undefined, //detail日付スライサー種別削除
       })
       return
     }
@@ -640,8 +672,10 @@ export const Tims: FC = () => {
         mainTitle: OVERALL_REPORT_NAME,
         subMenuTitle: overallReport?.title,
         subMenuEmbedUrl: overallReport?.embedUrl,
+        subMenuDateSlicerType: overallReport?.dateSlicerType, //追加:subMenu日付スライサー種別
         detailTitle: undefined,
         detailEmbedUrl: undefined,
+        detailsDateSlicerType: undefined, //追加:details日付スライサー種別
         underMenu: undefined,
         underMenuTitle: undefined,
         underMenuEmbedUrl: undefined,
@@ -663,8 +697,10 @@ export const Tims: FC = () => {
         mainTitle: OVERALL_REPORT_NAME,
         subMenuTitle: overallReport?.title,
         subMenuEmbedUrl: overallReport?.embedUrl,
+        subMenuDateSlicerType: overallReport?.dateSlicerType, //追加:subMenu日付スライサー種別
         detailTitle: undefined,
         detailEmbedUrl: undefined,
+        detailsDateSlicerType: undefined, //追加:details日付スライサー種別
         underMenu: undefined,
         underMenuTitle: undefined,
         underMenuEmbedUrl: undefined,
@@ -686,8 +722,10 @@ export const Tims: FC = () => {
         mainTitle: currentMenu.mainTitle,
         subMenuTitle: topReport?.title,
         subMenuEmbedUrl: topReport?.embedUrl,
+        subMenuDateSlicerType: topReport?.dateSlicerType, //追加:subMenu日付スライサー種別
         detailTitle: undefined,
         detailEmbedUrl: undefined,
+        detailsDateSlicerType: undefined, //追加:details日付スライサー種別
         underMenu: undefined,
         underMenuTitle: undefined,
         underMenuEmbedUrl: undefined,
@@ -697,7 +735,52 @@ export const Tims: FC = () => {
     }
   }
 
-  // #region Box
+  // DataPicker切替
+  const CheckSlicerType = (subMenuDateSlicerType: string | undefined, detailsDateSlicerType: string | undefined, underMenu: Under[] | undefined) => {
+
+    if (detailsDateSlicerType === undefined && underMenu === undefined)
+      //年のパターン
+      if (subMenuDateSlicerType === 'year')
+        return <YearPickerCalendar />
+
+      //年月のパターン
+      else if (subMenuDateSlicerType === 'month')
+        return <MonthPickerCalendar />
+
+      //週のパターン
+      else if (subMenuDateSlicerType === 'week')
+        return <WeekPickerCalendar />
+
+      //日付のパターン
+      else if (subMenuDateSlicerType === 'day')
+        return <DayPickerCalendar />
+
+      //その他('none'含め)
+      else return
+
+    else if (underMenu === undefined)
+      //年のパターン
+      if (detailsDateSlicerType === 'year')
+        return <YearPickerCalendar />
+
+      //年月のパターン
+      else if (detailsDateSlicerType === 'month')
+        return <MonthPickerCalendar />
+
+      //週のパターン
+      else if (detailsDateSlicerType === 'week')
+        return <WeekPickerCalendar />
+
+      //日付のパターン
+      else if (detailsDateSlicerType === 'day')
+        return <DayPickerCalendar />
+
+      //その他('none'含め)
+      else return
+
+    else return
+  }
+
   return (
     <Box sx={styles.root} display="flex">
       <Collapse in={isOpenMenu} orientation="horizontal" sx={styles.collapseRoot}>
@@ -717,9 +800,7 @@ export const Tims: FC = () => {
           currentMenu={currentMenu}
           setCurrentMenu={setCurrentMenu}
         />
-        {/*#region メニューボタンの段*/}
         <Box display="flex" sx={styles.btnList}>
-          {/*メインページ以外はメインに戻れるボタンを表示*/}
           <Box style={styles.topBtn}>
             {!isMainPage && (
               <Box
@@ -731,7 +812,7 @@ export const Tims: FC = () => {
                 onClick={handleBack}
               >
                 <SvgIcon
-                  component={arrowLeftIcon}
+                  //component={arrowLeftIcon}
                   sx={{ width: 'auto', height: 'auto' }}
                   width="18"
                   height="15.43"
@@ -740,7 +821,6 @@ export const Tims: FC = () => {
               </Box>
             )}
           </Box>
-          {/*SQCDEのメニューらしい*/}
           <Box py={4} sx={styles.btnMenu}>
             <Box
               display="flex"
@@ -769,74 +849,74 @@ export const Tims: FC = () => {
                   )
                 })}
             </Box>
-            <Box display="flex" sx={styles.bookmarksContainer}>
-              {menus
-                .find((menu) => menu.title === currentMenu.mainTitle)
-                ?.subMenu.find(
-                  (subMenu) => subMenu.title === currentMenu.subMenuTitle
-                )
-                ?.details.map((detial) => {
-                  return (
-                    <Box
-                      sx={{
-                        ...styles.btn,
-                        ...(currentMenu.detailTitle === detial.title
-                          ? styles.clickedBtn
-                          : {}),
-                        minWidth: 44,
-                      }}
-                      key={detial.title}
-                      onClick={(e) => {
-                        HandleChangeDetail(detial)
-                        if (detial.underMenu) {
-                          handleClick(e, detial.title)
-                        }
-                      }}
-                    >
-                      {detial.title}
-                    </Box>
-                  )
-                })}
-              {/*R工程などのサブメニュー*/}
-              <MuiMenu
-                anchorEl={anchorEl}
-                id="sub-menu"
-                open={open}
-                onClose={handleClose}
-                onClick={handleClose}
-                sx={styles.subMenu}
-                PaperProps={{
-                  elevation: 0,
-                  sx: styles.subMenuPaper,
-                }}
-                transformOrigin={{ horizontal: 'left', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 0, vertical: 70 }}
-              >
+            <Box display="flex" justifyContent='space-between'>
+              <Box display="flex" sx={styles.bookmarksContainer}>
                 {menus
                   .find((menu) => menu.title === currentMenu.mainTitle)
                   ?.subMenu.find(
                     (subMenu) => subMenu.title === currentMenu.subMenuTitle
                   )
-                  ?.details.find(
-                    (detial) => detial.title === currentMenu.detailTitle
-                  )
-                  ?.underMenu?.map((under) => (
-                    <MenuItem
-                      key={under.title}
-                      onClick={(e) => HandleChangeUnder(under)}
-                    >{under.title}</MenuItem>
-                  ))}
-              </MuiMenu>
+                  ?.details.map((detial) => {
+                    return (
+                      <Box
+                        sx={{
+                          ...styles.btn,
+                          ...(currentMenu.detailTitle === detial.title
+                            ? styles.clickedBtn
+                            : {}),
+                          minWidth: 44,
+                        }}
+                        key={detial.title}
+                        onClick={(e) => {
+                          HandleChangeDetail(detial)
+                          if (detial.underMenu) {
+                            handleClick(e, detial.title)
+                          }
+                        }}
+                      >
+                        {detial.title}
+                      </Box>
+                    )
+                  })}
+                <MuiMenu
+                  anchorEl={anchorEl}
+                  id="sub-menu"
+                  open={open}
+                  onClose={handleClose}
+                  onClick={handleClose}
+                  sx={styles.subMenu}
+                  PaperProps={{
+                    elevation: 0,
+                    sx: styles.subMenuPaper,
+                  }}
+                  transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+                  anchorOrigin={{ horizontal: 0, vertical: 70 }}
+                >
+                  {menus
+                    .find((menu) => menu.title === currentMenu.mainTitle)
+                    ?.subMenu.find(
+                      (subMenu) => subMenu.title === currentMenu.subMenuTitle
+                    )
+                    ?.details.find(
+                      (detial) => detial.title === currentMenu.detailTitle
+                    )
+                    ?.underMenu?.map((under) => (
+                      <MenuItem
+                        key={under.title}
+                        onClick={(e) => HandleChangeUnder(under)}
+                      >{under.title}</MenuItem>
+                    ))}
+                </MuiMenu>
+              </Box>
+
+              {/* DataPicker */}
+              {CheckSlicerType(currentMenu.subMenuDateSlicerType, currentMenu.detailsDateSlicerType, currentMenu.underMenu)}
+
             </Box>
-          </Box>
-          <Box display="flex" sx={styles.slicerList}>
-            {/*これが、スライサーになればいいな*/}
-            <Select selectElementType={SelectElementType.years } />
-            <Select selectElementType={SelectElementType.weeks } />
+
+
           </Box>
         </Box>
-        {/*#endregion メニューボタンの段*/}
-        {/*PowerBIContainer*/}
         <Box component={Paper} p={2} sx={styles.powerbiContainer}>
           <PowerBIEmbed
             embedConfig={reportConfig}
@@ -853,7 +933,6 @@ export const Tims: FC = () => {
         </Box>
       </Box>
     </Box>
-    // #region Box
 
   )
 }

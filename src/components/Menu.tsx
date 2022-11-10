@@ -110,8 +110,10 @@ export const MenuBar: FC<Props> = ({
         mainTitle: menu,
         subMenuTitle: subMenu.details[0].title,
         subMenuEmbedUrl: subMenu.details[0].embedUrl,
+        subMenuDateSlicerType: subMenu.details[0].dateSlicerType, //subMenu日付スライサー種別
         detailTitle: undefined,
         detailEmbedUrl: undefined,
+        detailsDateSlicerType: undefined, //details日付スライサー種別
         underMenu: undefined,
         underMenuTitle: undefined,
         underMenuEmbedUrl: undefined,
@@ -122,8 +124,10 @@ export const MenuBar: FC<Props> = ({
         mainTitle: menu,
         subMenuTitle: subMenu.title,
         subMenuEmbedUrl: subMenu.embedUrl,
+        subMenuDateSlicerType: subMenu.dateSlicerType, //subMenu日付スライサー種別
         detailTitle: undefined,
         detailEmbedUrl: undefined,
+        detailsDateSlicerType: undefined, //details日付スライサー種別
         underMenu: undefined,
         underMenuTitle: undefined,
         underMenuEmbedUrl: undefined,
@@ -179,10 +183,16 @@ export const MenuBar: FC<Props> = ({
                 ?.subMenu.find(
                   (subMenu) => subMenu.title === 'トップ'
                 )!.embedUrl
+                const picker = menus
+                .find((menu) => menu.title === '工場全体')
+                ?.subMenu.find(
+                  (subMenu) => subMenu.title === 'トップ'
+                )!.dateSlicerType
               if (link)
                 handleClickMenu('工場全体', true, {
                   title: 'トップ', 
                   embedUrl: link,
+                  dateSlicerType: picker,
                   anotherTabFlag: menu.anotherTabFlag,
                   details: [],
                 })
@@ -191,9 +201,13 @@ export const MenuBar: FC<Props> = ({
               const link = menu.subMenu.find(
                   (subMenu) => subMenu.title === 'トップ'
                 )!.embedUrl
+                const picker = menu.subMenu.find(
+                  (subMenu) => subMenu.title === 'トップ'
+                )!.dateSlicerType
               handleClickMenu(menu.title, menu.noMenuFlag, {
                 title: menu.title,
                 embedUrl: link,
+                dateSlicerType: picker,
                 anotherTabFlag: menu.anotherTabFlag,
                 details: menu.subMenu,
               })
