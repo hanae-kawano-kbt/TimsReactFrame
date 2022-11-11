@@ -26,8 +26,8 @@ const styles = {
     '& .MuiOutlinedInput-root': {
       borderRadius: '100vh',
       height: '36px',
-      borderColor: '#FFFFFF',
-      backgroundColor: '#FFFFFF',
+      borderColor: (theme: Theme) => theme.colors.white,
+      backgroundColor: (theme: Theme) => theme.colors.white,
       padding: '8px 16px 5px 16px',
       '& fieldset': {
         border: 'none',  // 通常時のボーダー色(アウトライン)
@@ -43,7 +43,7 @@ const styles = {
       padding: '0px'
     },
     '& input': {
-      borderColor: '#FFFFFF',
+      borderColor: (theme: Theme) => theme.colors.white,
       width: '100%',
       readonly: "readonly"
     },
@@ -56,12 +56,6 @@ const styles = {
     ' .MuiInputAdornment': {
       margin: '0px'
     },
-    '& .MuiInput-underline:before': {
-      //borderBottomColor: '#FFFFFF', // 通常時のボーダー色
-    },
-    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-      //borderBottomColor: '#FFFFFF',  // ホバー時のボーダー色
-    },
     ' .MuiInputAdornment-root': {
       marginLeft: '0px'
     },
@@ -70,20 +64,6 @@ const styles = {
     '& svg': {
       height: '16px',
       width: '16px'
-    },
-
-    //カレンダー
-    '& .Mui-selected:focus': {
-      backgroundColor: '#00a8a9'
-    },
-    '& .Mui-selected:hover': {
-      backgroundColor: '#00a8a9'
-    },
-    '> .css-1hkbm26-.PrivatePickersYear-button.Mui-selected:focus': {
-      backgroundColor: '#00a8a9'
-    },
-    '& .css-1hkbm26-PrivatePickersYear-button.Mui-selected:hover': {
-      backgroundColor: '#00a8a9'
     }
   },
 

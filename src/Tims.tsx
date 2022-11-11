@@ -198,7 +198,7 @@ export const Tims: FC = () => {
   // アイエンター社内に開発する時、PowerBIのサイトからトークンを取って開発する（1時間ごとに再取得必要）
   // クボタ様を渡す時に、「undefined」で設定
   const accessToken = useRef<string | undefined>(
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvMzc1NmYxOTYtZDdkYi00NTFiLWIyYTktOWUxYTAxODU1ZmUxLyIsImlhdCI6MTY2ODA2ODc3MSwibmJmIjoxNjY4MDY4NzcxLCJleHAiOjE2NjgwNzQwMjMsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVlFBcS84VEFBQUFsUDdrYWo4ZGUvOWRUMW90N2g2RjgvRVlsWWhSZDJBUjRqTlc1V0ozM1ZPdncxWmVsN0FXRVZnaUJrREovenJ4c3BUNUduOXdrZDhjMk5yai9LbVZHSUVuZ2EwUnA0OWhRSS82cVQvVis2bz0iLCJhbXIiOlsicHdkIiwibWZhIl0sImFwcGlkIjoiODcxYzAxMGYtNWU2MS00ZmIxLTgzYWMtOTg2MTBhN2U5MTEwIiwiYXBwaWRhY3IiOiIyIiwiZmFtaWx5X25hbWUiOiLmsrPph44iLCJnaXZlbl9uYW1lIjoi6Iux5oG1IiwiaXBhZGRyIjoiMjE3LjE3OC4xOS42IiwibmFtZSI6Iuays-mHjiDoi7HmgbUiLCJvaWQiOiIxOTEzNTRjMy1lZTBjLTRiZjQtYTAzNy1hZjZjMmFhNDlhMWYiLCJvbnByZW1fc2lkIjoiUy0xLTUtMjEtMzA0MzQ1OTY1Ny0zNDY4NDYyNDU4LTIwMjUyMDM2ODUtMTkzMjUiLCJwdWlkIjoiMTAwMzIwMDExREMzNUUwMyIsInJoIjoiMC5BVDBBbHZGV045dlhHMFd5cVo0YUFZVmY0UWtBQUFBQUFBQUF3QUFBQUFBQUFBQTlBSVEuIiwic2NwIjoidXNlcl9pbXBlcnNvbmF0aW9uIiwic2lnbmluX3N0YXRlIjpbImttc2kiXSwic3ViIjoiSmNub3VJYkZwT3dGZXJEUC1DcWtXRUdrXzh2bWJwNUloY19IZ1BkQjdzTSIsInRpZCI6IjM3NTZmMTk2LWQ3ZGItNDUxYi1iMmE5LTllMWEwMTg1NWZlMSIsInVuaXF1ZV9uYW1lIjoiaC1rYXdhbm9AaS1lbnRlci5jby5qcCIsInVwbiI6Imgta2F3YW5vQGktZW50ZXIuY28uanAiLCJ1dGkiOiJSMVhGNS1vWVgwU3RKcjlZVm9LZ0FBIiwidmVyIjoiMS4wIiwid2lkcyI6WyJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXX0.Vx4YUYBBZle6Xi5qSJjTCBCszAd_KmN9U6FwgVndhg_q_JPUBR7RmTu-4px13OLdEB76pKE9eP1NiBEzYSSW_2ycCedHntfMMp344SR8tPJPRndmIgW8tt1PYCfv3cLiMN3v7u9qh5-Nad4eQMXrYaM44nMxBCNsZ1uc3r27Wa3wqhffCQCG_DwWPHHwEC6VqA9T7VHO9m27p0cGngZdIHH7GHE2_Syu95gfsJmjpIKprCwDposuhMdwmljDNJXcaBhG1cII5RVtcSag_ZgnPjL81ORqlH8M39THK8B3fNkfRVWKFKJBuF-YBjRKyu_11O3YesNQxJIMLtoLeyAoHQ'
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvMzc1NmYxOTYtZDdkYi00NTFiLWIyYTktOWUxYTAxODU1ZmUxLyIsImlhdCI6MTY2ODE0ODc5NSwibmJmIjoxNjY4MTQ4Nzk1LCJleHAiOjE2NjgxNTM1MTAsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVlFBcS84VEFBQUFhWG9NV2dpbUhPY3JZbXkyRUdqWXRVWThiaUtpcFpCWTJTcDN2bzRnVGwrb1FnNmcrakFDSUg1eTlBOWFGamhyZTZsaXpnTUIxcVk5T3RaampSS3BnTTJUdWZYckNXek0yejhrK0p5WTZFST0iLCJhbXIiOlsicHdkIiwibWZhIl0sImFwcGlkIjoiODcxYzAxMGYtNWU2MS00ZmIxLTgzYWMtOTg2MTBhN2U5MTEwIiwiYXBwaWRhY3IiOiIyIiwiZmFtaWx5X25hbWUiOiLmsrPph44iLCJnaXZlbl9uYW1lIjoi6Iux5oG1IiwiaXBhZGRyIjoiMjE3LjE3OC4xNi4yNTQiLCJuYW1lIjoi5rKz6YeOIOiLseaBtSIsIm9pZCI6IjE5MTM1NGMzLWVlMGMtNGJmNC1hMDM3LWFmNmMyYWE0OWExZiIsIm9ucHJlbV9zaWQiOiJTLTEtNS0yMS0zMDQzNDU5NjU3LTM0Njg0NjI0NTgtMjAyNTIwMzY4NS0xOTMyNSIsInB1aWQiOiIxMDAzMjAwMTFEQzM1RTAzIiwicmgiOiIwLkFUMEFsdkZXTjl2WEcwV3lxWjRhQVlWZjRRa0FBQUFBQUFBQXdBQUFBQUFBQUFBOUFJUS4iLCJzY3AiOiJ1c2VyX2ltcGVyc29uYXRpb24iLCJzaWduaW5fc3RhdGUiOlsia21zaSJdLCJzdWIiOiJKY25vdUliRnBPd0ZlckRQLUNxa1dFR2tfOHZtYnA1SWhjX0hnUGRCN3NNIiwidGlkIjoiMzc1NmYxOTYtZDdkYi00NTFiLWIyYTktOWUxYTAxODU1ZmUxIiwidW5pcXVlX25hbWUiOiJoLWthd2Fub0BpLWVudGVyLmNvLmpwIiwidXBuIjoiaC1rYXdhbm9AaS1lbnRlci5jby5qcCIsInV0aSI6IndXVW9FZ0JzRzBPZkJfd3g5ZXBPQUEiLCJ2ZXIiOiIxLjAiLCJ3aWRzIjpbImI3OWZiZjRkLTNlZjktNDY4OS04MTQzLTc2YjE5NGU4NTUwOSJdfQ.IQ0F8rEKz4GhtV53H2iC6Tta6x6tZIBELFUiKWc0zQ4VljeIH4htUgSciXbZg43S0OBz-wO4RnRHh1xf_LnUMTdu9f7MDc42XtZ6AK5EbNar5I1wIk9H4UnwTTNVfSKf5HirROuM-7ZNtfcS6an-Wop0ZgsyOhUZ4N7RO0tDMlmWrAaWiF-T16y-Q5HKl7v7OeFDWhLtWNXXtcBTspRCNRA2ZQxtvZWHi3G3BBCB-Sy8xtvWNWbt38zrasX63AdTmAN-1KZ2FzCJmSsGOEmR6qFEw-Erlyp8DL7J8w84zp_CyVYpVuVOxhJl9P5Ajs2un8yRWvz4TrchStAkV35fOw'
   )
   // フィルターを開発する
   const slicerState = useRef<any>([])
@@ -259,7 +259,6 @@ export const Tims: FC = () => {
     [
       'loaded',
       async () => {
-        console.log('Report has loaded')
         if (reportRef.current === undefined) return
 
         try {
@@ -276,7 +275,6 @@ export const Tims: FC = () => {
             setCurrentBookmark(filteredBookmarks[0])
 
           // 選択したフィルターを反映
-          console.log('選択されているフィルターが0かどうか確認: ' + slicerState.current.length)
           if (slicerState.current.length === 0) return
           const pages = await reportRef.current!.getPages()
           const activePage = pages?.filter(function (page) {
@@ -302,7 +300,6 @@ export const Tims: FC = () => {
             )
             // 設定したフィルターを設定する
             if (savedState !== undefined) {
-              console.log('load時値直接セット')
               await slicer.setSlicerState({
                 filters: [...savedState.filters]
               })
@@ -317,7 +314,6 @@ export const Tims: FC = () => {
     [
       'rendered',
       async () => {
-        console.log('Report has rendered')
       },
     ],
     // PowerBIのエラーが発生する時
@@ -334,9 +330,6 @@ export const Tims: FC = () => {
       'dataSelected',
       async (event: any) => {
         // Slicerのstateを保管する(slicerの中にフィルターがある)
-        console.log('dataSelected')
-
-        //確認用↓↓↓
         try {
           const pages = await reportRef.current!.getPages()
           const activePage = pages?.filter(function (page) {
@@ -354,33 +347,6 @@ export const Tims: FC = () => {
           // 取得したslicerのステートを保管する
           slicers.forEach(async (slicer) => {
             const state = await slicer.getSlicerState()
-            console.log('dataSelected時値直接セット')
-            // const state: models.ISlicerState = {
-            //   filters: [
-            //     {
-            //       //年
-            //       $schema: "http://powerbi.com/product/schema#basic",
-            //       filterType: 1,
-            //       operator: "In",
-            //       requireSingleSelection: true,
-            //       // target: {column: 'year', table: 'date'},
-            //       target: { column: "年", table: "date" },
-            //       values: ["2021"]
-            //     },
-            //     // {
-            //     //   //月
-            //     //   $schema: 'http://powerbi.com/product/schema#basic',
-            //     //   filterType: 1,
-            //     //   operator: 'In',
-            //     //   requireSingleSelection: true,
-            //     //   target: { column: 'month', table: 'date' },
-            //     //   values: ['10']
-            //     // },
-            //   ],
-            //   targets: [
-            //     { column: "year", table: "date" },
-            //   ]
-            // }
             slicerState.current = [...slicerState.current, state]
           })
         } catch (errors) {
@@ -560,19 +526,7 @@ export const Tims: FC = () => {
     setReportConfig({
       ...reportConfig,
       accessToken: accessToken.current,
-      embedUrl: embedUrl,
-      //ここにfilters
-      filters: [
-        {
-          //年
-          $schema: "http://powerbi.com/product/schema#basic",
-          filterType: models.FilterType.Basic,
-          operator: "In",
-          requireSingleSelection: true,
-          target: { column: "yyyy/mm", table: "日付マスタ" },
-          values: ["2021/5"]
-        },
-      ]
+      embedUrl: embedUrl
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMenu])
@@ -594,9 +548,7 @@ export const Tims: FC = () => {
       setCurrentMenu({
         ...currentMenu,
         detailTitle: detail.title,
-        underMenu: detail.underMenu,
-        //subMenuDateSlicerType: undefined, //subMenu日付スライサー種別追加 【要調査】
-        //detailsDateSlicerType: undefined //details日付スライサー種別追加 【要調査】
+        underMenu: detail.underMenu
       })
     } else if (detail.anotherTabFlag) {
       window.open(detail.embedUrl, '_blank');
@@ -618,9 +570,7 @@ export const Tims: FC = () => {
     setCurrentMenu({
       ...currentMenu,
       underMenuTitle: under.title,
-      underMenuEmbedUrl: under.embedUrl,
-      //subMenuDateSlicerType: undefined, //subMenu日付スライサー種別追加 【要調査】
-      //detailsDateSlicerType: undefined //details日付スライサー種別追加 【要調査】
+      underMenuEmbedUrl: under.embedUrl
     })
   }
 
@@ -736,29 +686,10 @@ export const Tims: FC = () => {
   }
 
   // DataPicker切替
-  const CheckSlicerType = (subMenuDateSlicerType: string | undefined, detailsDateSlicerType: string | undefined, underMenu: Under[] | undefined) => {
+  const CheckSlicerType = (
+    subMenuDateSlicerType: string | undefined, detailsDateSlicerType: string | undefined, underMenu: Under[] | undefined) => {
 
-    if (detailsDateSlicerType === undefined && underMenu === undefined)
-      //年のパターン
-      if (subMenuDateSlicerType === 'year')
-        return <YearPickerCalendar />
-
-      //年月のパターン
-      else if (subMenuDateSlicerType === 'month')
-        return <MonthPickerCalendar />
-
-      //週のパターン
-      else if (subMenuDateSlicerType === 'week')
-        return <WeekPickerCalendar />
-
-      //日付のパターン
-      else if (subMenuDateSlicerType === 'day')
-        return <DayPickerCalendar />
-
-      //その他('none'含め)
-      else return
-
-    else if (underMenu === undefined)
+    if (detailsDateSlicerType !== undefined && underMenu === undefined)
       //年のパターン
       if (detailsDateSlicerType === 'year')
         return <YearPickerCalendar />
@@ -773,6 +704,26 @@ export const Tims: FC = () => {
 
       //日付のパターン
       else if (detailsDateSlicerType === 'day')
+        return <DayPickerCalendar />
+
+      //その他('none'含め)
+      else return
+
+    else if (subMenuDateSlicerType !== undefined && underMenu === undefined)
+      //年のパターン
+      if (subMenuDateSlicerType === 'year')
+        return <YearPickerCalendar />
+
+      //年月のパターン
+      else if (subMenuDateSlicerType === 'month')
+        return <MonthPickerCalendar />
+
+      //週のパターン
+      else if (subMenuDateSlicerType === 'week')
+        return <WeekPickerCalendar />
+
+      //日付のパターン
+      else if (subMenuDateSlicerType === 'day')
         return <DayPickerCalendar />
 
       //その他('none'含め)

@@ -134,7 +134,7 @@ export const Header: FC<Props> = ({
         />
       </Box>
       <Box mr="25px">
-        <Typography fontSize={27}>Tims</Typography>
+        <Typography fontSize={27}>TIMs</Typography>
       </Box>
       <Box display="flex" flexDirection="column" mr="auto">
         <Box>
