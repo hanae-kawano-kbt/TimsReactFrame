@@ -4,6 +4,8 @@ import { Theme } from '@mui/material'
 import { ReactComponent as MenuIcon } from '../assets/icons/menu_white.svg'
 import { CurrentMenu } from '../Tims'
 import { menus, OVERALL_REPORT_NAME, TOP_REPORT_NAME } from '../menuConfig'
+// アクセスカウンター
+import { accessCountApi } from '../components/api/AccessCountApi'
 
 const styles = {
   root: {
@@ -49,20 +51,29 @@ export const Header: FC<Props> = ({
 }) => {
   // パンくずリストに工場全体が押下される時
   const handleBackToOverallReport = () => {
+    const mainReport = menus.find((menu) => menu.title === OVERALL_REPORT_NAME)
     const overallReport = menus
       .find((menu) => menu.title === OVERALL_REPORT_NAME)
       ?.subMenu.find((subMenu) => subMenu.title === TOP_REPORT_NAME)
     setCurrentMenu({
       mainTitle: OVERALL_REPORT_NAME,
+      mainAccessCountTitle: mainReport?.accessCountTitle,
       subMenuTitle: overallReport?.title,
+      subMenuAccessCountTitle: overallReport?.accessCountTitle,
       subMenuEmbedUrl: overallReport?.embedUrl,
+      subMenuDateSlicerType: overallReport?.dateSlicerType,
       detailTitle: undefined,
+      detailAccessCountTitle: undefined,
       detailEmbedUrl: undefined,
+      detailsDateSlicerType: undefined,
       underMenu: undefined,
       underMenuTitle: undefined,
+      underMenuAccessCountTitle: undefined,
       underMenuEmbedUrl: undefined,
-      noMenuFlag: overallReport?.noMenuFlag ? overallReport?.noMenuFlag : false
+      underMenuDateSlicerType: undefined,
+      noMenuFlag: overallReport?.noMenuFlag ? overallReport?.noMenuFlag : false,
     })
+    accessCountApi(overallReport?.accessCountTitle, overallReport?.title)
   }
 
   // パンくずリストに各課が押下される時
@@ -72,15 +83,23 @@ export const Header: FC<Props> = ({
       ?.subMenu.find((subMenu) => subMenu.title === TOP_REPORT_NAME)
     setCurrentMenu({
       mainTitle: currentMenu.mainTitle,
+      mainAccessCountTitle: currentMenu.mainAccessCountTitle,
       subMenuTitle: report?.title,
+      subMenuAccessCountTitle: report?.accessCountTitle,
       subMenuEmbedUrl: report?.embedUrl,
+      subMenuDateSlicerType: report?.dateSlicerType,
       detailTitle: undefined,
+      detailAccessCountTitle: undefined,
       detailEmbedUrl: undefined,
+      detailsDateSlicerType: undefined,
       underMenu: undefined,
       underMenuTitle: undefined,
+      underMenuAccessCountTitle: undefined,
       underMenuEmbedUrl: undefined,
-      noMenuFlag: report?.noMenuFlag ? report?.noMenuFlag : false
+      underMenuDateSlicerType: undefined,
+      noMenuFlag: report?.noMenuFlag ? report?.noMenuFlag : false,
     })
+    accessCountApi(report?.accessCountTitle, report?.title)
   }
 
   // パンくずリストに各課のサブメニューが押下される時(MARなど)
@@ -90,15 +109,23 @@ export const Header: FC<Props> = ({
       ?.subMenu.find((subMenu) => subMenu.title === currentMenu.subMenuTitle)
     setCurrentMenu({
       mainTitle: currentMenu.mainTitle,
+      mainAccessCountTitle: currentMenu.mainAccessCountTitle,
       subMenuTitle: report?.title,
+      subMenuAccessCountTitle: report?.accessCountTitle,
       subMenuEmbedUrl: report?.embedUrl,
+      subMenuDateSlicerType: report?.dateSlicerType,
       detailTitle: undefined,
+      detailAccessCountTitle: undefined,
       detailEmbedUrl: undefined,
+      detailsDateSlicerType: undefined,
       underMenu: undefined,
       underMenuTitle: undefined,
+      underMenuAccessCountTitle: undefined,
       underMenuEmbedUrl: undefined,
-      noMenuFlag: report?.noMenuFlag
+      underMenuDateSlicerType: undefined,
+      noMenuFlag: report?.noMenuFlag,
     })
+    accessCountApi(report?.accessCountTitle, report?.title)
   }
 
   // パンくずリストの詳細メニューが押されたとき(S,Q,Cなど)
@@ -107,18 +134,25 @@ export const Header: FC<Props> = ({
       .find((menu) => menu.title === currentMenu.mainTitle)
       ?.subMenu.find((subMenu) => subMenu.title === currentMenu.subMenuTitle)
       ?.details.find((detail) => detail.title === currentMenu.detailTitle)
-
     setCurrentMenu({
       mainTitle: currentMenu.mainTitle,
+      mainAccessCountTitle: currentMenu.mainAccessCountTitle,
       subMenuTitle: currentMenu.subMenuTitle,
+      subMenuAccessCountTitle: currentMenu.subMenuAccessCountTitle,
       subMenuEmbedUrl: currentMenu.subMenuEmbedUrl,
+      subMenuDateSlicerType: currentMenu.detailsDateSlicerType,
       detailTitle: report?.title,
+      detailAccessCountTitle: report?.accessCountTitle,
       detailEmbedUrl: report?.embedUrl,
+      detailsDateSlicerType: report?.dateSlicerType,
       underMenu: undefined,
       underMenuTitle: undefined,
+      underMenuAccessCountTitle: undefined,
       underMenuEmbedUrl: undefined,
-      noMenuFlag: false // TODO: 調整
+      underMenuDateSlicerType: undefined,
+      noMenuFlag: false,
     })
+    accessCountApi(report?.accessCountTitle, report?.title)
   }
 
   return (
@@ -134,7 +168,7 @@ export const Header: FC<Props> = ({
         />
       </Box>
       <Box mr="25px">
-        <Typography fontSize={27}>Tims</Typography>
+        <Typography fontSize={27}>TIMs</Typography>
       </Box>
       <Box display="flex" flexDirection="column" mr="auto">
         <Box>
@@ -156,6 +190,8 @@ export const Header: FC<Props> = ({
             key="1"
             onClick={
               currentMenu.mainTitle !== OVERALL_REPORT_NAME ||
+              (currentMenu.noMenuFlag =
+                true && currentMenu.subMenuTitle !== OVERALL_REPORT_NAME) ||
               currentMenu.detailTitle !== undefined
                 ? handleBackToOverallReport
                 : undefined
@@ -163,19 +199,24 @@ export const Header: FC<Props> = ({
           >
             {OVERALL_REPORT_NAME}
           </StyledLink>
-          {currentMenu.mainTitle !== OVERALL_REPORT_NAME && (
-            <StyledLink
-              key="2"
-              onClick={
-                currentMenu.subMenuTitle !== TOP_REPORT_NAME ||
-                currentMenu.detailTitle !== undefined
-                  ? handleBackToMainReport
-                  : undefined
-              }
-            >
-              {currentMenu.mainTitle}
-            </StyledLink>
-          )}
+          {currentMenu.mainTitle !== OVERALL_REPORT_NAME &&
+            (currentMenu.noMenuFlag ? (
+              /* noMenuFlagがtrue */
+              <StyledLink
+                key="2"
+                onClick={
+                  currentMenu.subMenuTitle !== TOP_REPORT_NAME ||
+                  currentMenu.detailTitle !== undefined
+                    ? handleBackToMainReport
+                    : undefined
+                }
+              >
+                {currentMenu.mainTitle}
+              </StyledLink>
+            ) : (
+              /* noMenuFlagがfalse */
+              <StyledLink>{currentMenu.mainTitle}</StyledLink>
+            ))}
           {currentMenu.subMenuTitle !== TOP_REPORT_NAME && (
             <StyledLink
               key="3"
@@ -188,15 +229,19 @@ export const Header: FC<Props> = ({
               {currentMenu.subMenuTitle}
             </StyledLink>
           )}
-          {currentMenu.detailTitle !== undefined && currentMenu.underMenu === undefined && (
-            <StyledLink key="4" onClick={
-              currentMenu.underMenuTitle !== undefined
-                ? handleBackToDetailMenuReport
-                : undefined
-            }>
-              {currentMenu.detailTitle}
-            </StyledLink>
-          )}
+          {currentMenu.detailTitle !== undefined &&
+            currentMenu.underMenu === undefined && (
+              <StyledLink
+                key="4"
+                onClick={
+                  currentMenu.underMenuTitle !== undefined
+                    ? handleBackToDetailMenuReport
+                    : undefined
+                }
+              >
+                {currentMenu.detailTitle}
+              </StyledLink>
+            )}
           {currentMenu.underMenuTitle !== undefined && (
             <StyledLink key="5" onClick={undefined}>
               {currentMenu.underMenuTitle}

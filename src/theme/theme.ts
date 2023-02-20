@@ -8,6 +8,7 @@ declare module '@mui/material/styles' {
       middleGreen: string
       lightGreen: string
       line: string
+      gray: string
     }
   }
   // allow configuration using `createTheme`
@@ -18,6 +19,7 @@ declare module '@mui/material/styles' {
       middleGreen?: string
       lightGreen?: string
       line?: string
+      gray?: string
     }
   }
 }
@@ -33,6 +35,7 @@ export const theme = createTheme({
     middleGreen: '#009da6',
     lightGreen: '#e9f0f0',
     line: '#c1eaea',
+    gray: '#41424B'
   },
   palette: {
     primary: {
@@ -76,12 +79,5 @@ export const theme = createTheme({
         },
       },
     },
-    MuiMenu: {
-      styleOverrides: {
-        root: {
-          maxHeight:280
-        },
-      },
-    }
   },
 })

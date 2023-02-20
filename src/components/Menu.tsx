@@ -6,6 +6,9 @@ import { ReactComponent as Logo } from '../assets/icons/logo_kubota.svg'
 import { ReactComponent as MenuIcon } from '../assets/icons/menu_green.svg'
 import { models } from 'powerbi-client'
 import { CurrentMenu } from '../Tims'
+// アクセスカウンター
+import { accessCountApi } from '../components/api/AccessCountApi'
+import { OVERALL_REPORT_NAME } from '..//menuConfig'
 
 const styles = {
   root: {
@@ -45,7 +48,7 @@ const styles = {
     },
     '& .MuiMenuItem-root': {
       padding: '4px 14px',
-      color: '#41424b',
+      color: (theme: Theme) => theme.colors.gray,
     },
   },
   subMenuPaper: {
@@ -101,34 +104,62 @@ export const MenuBar: FC<Props> = ({
     setAnchorEl(null)
   }
 
-  const handleClickMenu = (menu: string, noMenuFlag: boolean, subMenu: SubMenu) => {
+  const handleClickMenu = (
+    menu: string,
+    menuAccessCountTitle: string | undefined,
+    noMenuFlag: boolean,
+    subMenu: SubMenu
+  ) => {
     setIsOpenMenu(false)
     if (subMenu.anotherTabFlag) {
-      window.open(subMenu.embedUrl, '_blank');
-    } else if (noMenuFlag && menu !== '工場全体') {
+      // 別タブで開く場合
+      window.open(subMenu.embedUrl, '_blank')
+      accessCountApi(subMenu.accessCountTitle, subMenu.title)
+    } else if (noMenuFlag && menu !== OVERALL_REPORT_NAME) {
+      // 別タブで開かないが、noMenuFlagがtrue(ポップアップが存在しない)かつ工場全体でない場合
       setCurrentMenu({
         mainTitle: menu,
+        mainAccessCountTitle: menuAccessCountTitle,
         subMenuTitle: subMenu.details[0].title,
+        subMenuAccessCountTitle: subMenu.details[0].accessCountTitle,
         subMenuEmbedUrl: subMenu.details[0].embedUrl,
+        subMenuDateSlicerType: subMenu.details[0].dateSlicerType,
         detailTitle: undefined,
+        detailAccessCountTitle: undefined,
         detailEmbedUrl: undefined,
+        detailsDateSlicerType: undefined,
         underMenu: undefined,
         underMenuTitle: undefined,
+        underMenuAccessCountTitle: undefined,
         underMenuEmbedUrl: undefined,
-        noMenuFlag: noMenuFlag
+        underMenuDateSlicerType: undefined,
+        noMenuFlag: noMenuFlag,
       })
+      accessCountApi(
+        subMenu.details[0].accessCountTitle,
+        subMenu.details[0].title
+      )
     } else {
+      // 別タブで開かないが、noMenuFlagがfalse(ポップアップが存在する)もしくは工場全体である場合
       setCurrentMenu({
         mainTitle: menu,
+        mainAccessCountTitle: menuAccessCountTitle,
         subMenuTitle: subMenu.title,
+        subMenuAccessCountTitle: subMenu.accessCountTitle,
         subMenuEmbedUrl: subMenu.embedUrl,
+        subMenuDateSlicerType: subMenu.dateSlicerType,
         detailTitle: undefined,
+        detailAccessCountTitle: undefined,
         detailEmbedUrl: undefined,
+        detailsDateSlicerType: undefined,
         underMenu: undefined,
         underMenuTitle: undefined,
+        underMenuAccessCountTitle: undefined,
         underMenuEmbedUrl: undefined,
-        noMenuFlag: noMenuFlag
+        underMenuDateSlicerType: undefined,
+        noMenuFlag: noMenuFlag,
       })
+      accessCountApi(subMenu.accessCountTitle, subMenu.title)
     }
   }
 
@@ -173,32 +204,25 @@ export const MenuBar: FC<Props> = ({
             ...(currentMenu.mainTitle === menu.title && styles.selectedMenu),
           }}
           onClick={(e) => {
-            if (menu.title === '工場全体') {
-              const link = menus
-                .find((menu) => menu.title === '工場全体')
-                ?.subMenu.find(
-                  (subMenu) => subMenu.title === 'トップ'
-                )!.embedUrl
-              if (link)
-                handleClickMenu('工場全体', true, {
-                  title: 'トップ', 
+            if (menu.noMenuFlag) {
+              const link = menu.subMenu[0].embedUrl
+              const picker = menu.subMenu[0].dateSlicerType
+              const accessCount = menu.subMenu[0].accessCountTitle
+              handleClickMenu(
+                menu.title,
+                menu.accessCountTitle,
+                menu.noMenuFlag,
+                {
+                  title: menu.title,
+                  accessCountTitle: accessCount,
                   embedUrl: link,
+                  dateSlicerType: picker,
                   anotherTabFlag: menu.anotherTabFlag,
-                  details: [],
-                })
+                  details: menu.subMenu,
+                }
+              )
               return
-            } else if (menu.noMenuFlag) {
-              const link = menu.subMenu.find(
-                  (subMenu) => subMenu.title === 'トップ'
-                )!.embedUrl
-              handleClickMenu(menu.title, menu.noMenuFlag, {
-                title: menu.title,
-                embedUrl: link,
-                anotherTabFlag: menu.anotherTabFlag,
-                details: menu.subMenu,
-              })
-              return
-            } else if (menu.subMenu.length <= 1) { // TODO: 調整
+            } else if (menu.subMenu.length <= 1) {
               handleClick(e, menu.title)
             }
             handleClick(e, menu.title)
@@ -229,7 +253,17 @@ export const MenuBar: FC<Props> = ({
           ?.subMenu.map((subMenu) => (
             <MenuItem
               key={subMenu.title}
-              onClick={() => handleClickMenu(clickedMenu, false, subMenu)}
+              onClick={() => {
+                const mainMenu = menus.find(
+                  (menu) => menu.title === clickedMenu
+                )
+                handleClickMenu(
+                  clickedMenu,
+                  mainMenu?.accessCountTitle,
+                  false,
+                  subMenu
+                )
+              }}
             >
               {subMenu.title}
             </MenuItem>
